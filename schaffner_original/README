@@ -1,2 +1,10 @@
+To install:
+gcc -o hmm -g -lm -Wall hmm.c translate.c
+
+
 extract_vcf.pl uncompresses a vcf file and pulls out variants into a seq.txt file. (scriptVCF_IBD.py is my version)
 hmm.c is the only one that is pertinent. This is the actual script
+
+
+from steve:
+The first script uncompresses the VCF file and pipes the results to the script that pulls out variants. hmm.c is the HMM, which needs a little utility routine in translate.c.
