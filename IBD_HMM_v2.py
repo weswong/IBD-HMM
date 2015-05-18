@@ -6,13 +6,6 @@ import cPickle as pickle
             
 with open('snp_dict.pkl', 'wb') as fp:
     snp_dict = pickle.load(snp_dict, fp)
-            
-class Sequence:
-    snps = 
-    
-    def __init__(self, name, sequence):
-        self.name = name
-        self.sequence = sequence
 
 def conditional_probability(comparison, snp1):
     # conditional probabilities are calculated per position
