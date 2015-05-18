@@ -1,0 +1,2 @@
+extract_vcf.pl uncompresses a vcf file and pulls out variants into a seq.txt file. (scriptVCF_IBD.py is my version)
+hmm.c is the only one that is pertinent. This is the actual script
