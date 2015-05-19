@@ -1,12 +1,16 @@
-from hmm_fileprep_v5 import *
-import cPickle as pickle
+from hmm_fileprep_v6 import *
 
- with open('combo_dict.pkl', 'wb') as fp:
-    combo_dict = pickle.load(combo_dict, fp)
+
+class SNP:
+    '''SNP object....kind of self explanatory'''
+    def __init__(self, chr, position, major, major_freq, minor, minor_freq):
+        self.chr, self.position, self.major, self.major_freq, self.minor, self.minor_freq = chr, position, major, major_freq, minor, minor_freq
+        self.sample_list = {}
+        self.combo_list = {}
+        
+    def sample_list_maker(self, sampleID, SNPidentity):
+        self.sample_list[sampleID] = SNPidentity
             
-with open('snp_dict.pkl', 'wb') as fp:
-    snp_dict = pickle.load(snp_dict, fp)
-
 def conditional_probability(comparison, snp1):
     # conditional probabilities are calculated per position
     eps = 0.001
@@ -53,7 +57,6 @@ def viterbi(comparison, snp1, snp2=None, psi=None):
         psi.delta2 = delta_DBD
         
         return psi
-    
     else:
         b_IBD, b_DBD = conditional_probability(comparison, snp2)
         p_trans = k_rec*rec_rate*(float(snp1.position) - float(snp2.position))
@@ -82,6 +85,25 @@ def viterbi(comparison, snp1, snp2=None, psi=None):
         
         return psi
         
+def snp_file_parse(snp_file, cleaned_file):
+    fin = open(snp_file)
+    snp_dict = {}
+    for line in fin.readlines()[1:]:
+        data =line.strip().split()
+        snp_dict[data[0]] = SNP(data[1], data[2], data[3], data[4], data[5], data[6])
+    fin.close()
+    
+    with open(cleaned_file) as cleaned_fin:
+        line = np.array(cleaned_fin.readline().strip().split())
+        header = line
+        for raw_line in cleaned_fin:
+            line = np.array(raw_line.strip().split())
+            chr = line[0]
+            position = line[1]
+            snp_name = chr + '_' + position
+            for i, element in enumerate(line[3:]):
+                snp_dict[snp_name].sample_list_maker(header[i+3], line[i+3])
+    return snp_dict
         
 def IBD_HMM(comparison, snp_dict):
     IBD_dict = {}
