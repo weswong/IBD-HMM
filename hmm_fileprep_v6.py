@@ -168,18 +168,23 @@ class SNP:
         
     def sample_list_maker(self, sampleID, SNPidentity):
         self.sample_list[sampleID] = SNPidentity
+
+#class Sequence:
+#    '''object for each sample.'''
+#    def __init__(self, name):
+#        self.name = name
+#        self.snp_dict = {}
         
 def good_combosfinder(cleaned_file):
     '''filters file to get the good combos'''
-    fout = open('bad_combos.log', 'w')
-    fout_data = open('good_combos.txt', 'w')
     #allele_freq_list = assign_allele_freq(cleaned_file)
     Comparator.snpcount = float(file_len(cleaned_file) -1)
     combo_dict = {}
     index = 0
     snp_dict = {}
+    fout = open('snp_properties.txt', 'wb')
+    fout.write(('\t').join(['name', 'chr', 'position', 'major', 'major_prop', 'minor', 'minor_prop']) + '\n')
     
-    temp_combo = {}
     with open(cleaned_file) as cleaned_fin:
         line = np.array(cleaned_fin.readline().strip().split())
         header = line
@@ -195,10 +200,12 @@ def good_combosfinder(cleaned_file):
             position = line[1]
             snp_name = chr + '_' + position
             major, major_prop, minor, minor_prop = allele_freq(line[3:]) 
-            snp_dict[snp_name] = SNP(chr, position, major, major_prop, minor, minor_prop)
+            fout.write(('\t').join([snp_name, chr, position, major, str(major_prop), minor, str(minor_prop)]) + '\n')
+
+            #snp_dict[snp_name] = SNP(chr, position, major, major_prop, minor, minor_prop)
                     
-            for i, element in enumerate(line[3:]):
-                snp_dict[snp_name].sample_list_maker(header[i+3], line[i+3])
+            #for i, element in enumerate(line[3:]):
+            #    snp_dict[snp_name].sample_list_maker(header[i+3], line[i+3])
                                    
             for icombo in combo_indices:
                 comparison = str(header[icombo[0]]) + ':' + str(header[icombo[1]])
@@ -218,14 +225,26 @@ def good_combosfinder(cleaned_file):
                     combo_dict[comparison].missing += 1
                     
             index += 1
+    fout.close()
     good_combos = {}
     for key in combo_dict:
         combo_dict[key].frac_miss_calc()
         combo_dict[key].viable_check()
         if combo_dict[key].use == True:
             good_combos[key] = combo_dict[key]
+    
+    fout_goodcombos = open('good_combos.txt', 'wb')
+    for key in good_combos:
+        fout_goodcombos.write(key + '\n')
+    
+    fout_goodcombos.close()
+    
+    '''with open('combo_dict.pkl', 'wb') as fp:
+        pickle.dump(combo_dict, fp)
             
-    return good_combos, snp_dict        
+    with open('snp_dict.pkl', 'wb') as fp:
+        pickle.dump(snp_dict, fp)'''
+              
                 
 
 # <codecell>
@@ -236,14 +255,9 @@ if __name__ == "__main__":
 
     cleaned_file = ('').join(input_file.split('.')[0]) + 'cleaned.txt'
     combo_indices = data_prep(input_file, bad_samples_file)
-    combo_dict,snp_dict = good_combosfinder(cleaned_file)
+    good_combosfinder(cleaned_file)
     
     
-    with open('combo_dict.pkl', 'wb') as fp:
-        pickle.dump(combo_dict, fp)
-            
-    with open('snp_dict.pkl', 'wb') as fp:
-        pickle.dump(snp_dict, fp)
         
         
 
