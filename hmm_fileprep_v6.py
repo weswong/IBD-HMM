@@ -157,18 +157,6 @@ class Comparator:
         self.discordant_sites += d
         self.missing += m
 
-
-
-class SNP:
-    '''SNP object....kind of self explanatory'''
-    def __init__(self, chr, position, major, major_freq, minor, minor_freq):
-        self.chr, self.position, self.major, self.major_freq, self.minor, self.minor_freq = chr, position, major, major_freq, minor, minor_freq
-        self.sample_list = {}
-        self.combo_list = {}
-        
-    def sample_list_maker(self, sampleID, SNPidentity):
-        self.sample_list[sampleID] = SNPidentity
-
 #class Sequence:
 #    '''object for each sample.'''
 #    def __init__(self, name):
@@ -235,7 +223,8 @@ def good_combosfinder(cleaned_file):
     
     fout_goodcombos = open('good_combos.txt', 'wb')
     for key in good_combos:
-        fout_goodcombos.write(key + '\n')
+        fout_goodcombos.write(('\t').join([key, str(combo_dict[key].frac_miss)]) + '\n')
+    
     
     fout_goodcombos.close()
     
