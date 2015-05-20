@@ -102,20 +102,6 @@ def data_prep(input_file, bad_samples_file):
     fout.close()
     return combo_indices
 
-class Psi:
-    '''an object that stores the most likely path of the viterbi algorithm. It also records the probabilities of each path'''
-    def __init__(self):
-        # last element of each path consists of a tuple: (delta_tminus IBD, delta_tminus_DBD)
-        # refers to the path that always assumes the next step is IBD
-        self.path1= []
-        # refers to the path that always assumes that the next step is DBD
-        self.path2 = []
-        self.snp_list = []
-
-        # end probabilities that tells us which path is the correct one
-        self.delta1 = None
-        self.delta2 = None
-
 class Comparator:
     '''an object that stores the number of sites where the minor alele is present in at least one sample AND:
         1) it is the same (concordant)
@@ -123,7 +109,7 @@ class Comparator:
         OR
         3) number of sites that are missing
         4) Total number of SNPs used overall. This does not correct for number of missing sites'''
-    max_discordance = 0.85
+    max_discordance, max_missing = 0.85, 0.25
     snpcount = 0 #we set the snpcount at runtime
     def __init__(self,sample1, sample2, concordant=0, discordant=0, missing=0):
         self.concordant_sites = float(concordant)
@@ -146,7 +132,7 @@ class Comparator:
     def viable_check(self):
         # determines whether or not we actually use this comparison
         self.discordance_calc()
-        if self.discordance > Comparator.max_discordance:
+        if self.discordance > Comparator.max_discordance or self.frac_miss > Comparator.max_missing:
             self.use = False
         else:
             self.use = True
