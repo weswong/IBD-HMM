@@ -1,6 +1,16 @@
 
 from hmm_fileprep_v6 import *
 
+class SNP:
+    '''SNP object....kind of self explanatory'''
+    def __init__(self, chr, position, major, major_freq, minor, minor_freq):
+        self.chr, self.position, self.major, self.major_freq, self.minor, self.minor_freq = chr, position, major, major_freq, minor, minor_freq
+        self.sample_list = {}
+        self.combo_list = {}
+        
+    def sample_list_maker(self, sampleID, SNPidentity):
+        self.sample_list[sampleID] = SNPidentity
+
 class Psi:
     '''an object that stores the most likely path of the viterbi algorithm. It also records the probabilities of each path
     0 =DBD , 1 = IBD'''
