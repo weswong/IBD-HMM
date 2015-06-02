@@ -1,4 +1,4 @@
-#@profile
+@profile
 def data_prep(data_df):
     eps = 0.001
     k_rec = 2.0
@@ -37,7 +37,7 @@ def data_prep(data_df):
 #Finds all spots that have some level of missing data, then flips it to serve as an index
 
 # <codecell>
-#@profile
+@profile
 def pairwise_df(good_df):
     fout = open('ibd_hmm.txt', 'w')
     for sample1, sample2 in zip(good_df[0], good_df[1]):
@@ -87,13 +87,13 @@ def pairwise_df(good_df):
             fout.write(('\t').join([sample1, sample2, str(number), viterbi_dict[number]]) + '\n')
 
 # <codecell>
-#@profile
+@profile
 def viterbi(df):
     viterbi_dict = {}
     for number in range(1,17):
         concatenized_df = df[df['chrom'] == number]
-        psi_1 = ''
-        psi_2 = ''
+        psi_0 = []
+        psi_1 = []
         start_indices = concatenized_df.loc[concatenized_df['p_trans'].isnull()].index
         for index, b_IBD, b_DBD, p_trans, p_notrans in zip(concatenized_df.index, concatenized_df['b_IBD'],
                                                            concatenized_df['b_DBD'], concatenized_df['p_trans'],
@@ -106,31 +106,34 @@ def viterbi(df):
                 delta_IBD_tminus, delta_DBD_tminus = delta_IBD, delta_DBD
                 
                 delta_IBD = max(delta_IBD_tminus + p_notrans + b_IBD, delta_DBD_tminus + p_trans + b_IBD)
-                IBD_tminus_index = [delta_IBD_tminus + p_notrans + b_IBD, delta_DBD_tminus + p_trans + b_IBD].index(delta_IBD)
-                
-                if IBD_tminus_index == 0:
-                    # 1 means this is in IBD
-                    psi_1 += '1'
-                else:
-                    # 0 means this is in DBD
-                    psi_1 += '0'
+                #IBD_tminus_index = np.argmax(np.array([delta_IBD_tminus + p_notrans, delta_DBD_tminus + p_trans]))
+                IBD_tminus_index = [delta_IBD_tminus + p_notrans, delta_DBD_tminus + p_trans].index(max([delta_IBD_tminus + p_notrans, delta_DBD_tminus + p_trans]))
+                psi_0.append(IBD_tminus_index)
                     
                 delta_DBD = max(delta_IBD_tminus + p_trans + b_DBD, delta_DBD_tminus + p_notrans + b_DBD)
-                DBD_tminus_index = [delta_IBD_tminus + p_trans + b_DBD, delta_DBD_tminus + p_notrans + b_DBD].index(delta_DBD)
-                
-                if DBD_tminus_index == 0:
-                    psi_2 += '1'
-                else:
-                    psi_2 += '0'
+                #DBD_tminus_index = np.argmax(np.array([delta_IBD_tminus + p_trans, delta_DBD_tminus + p_notrans]))
+                DBD_tminus_index = [delta_IBD_tminus + p_trans, delta_DBD_tminus + p_notrans].index(max([delta_IBD_tminus + p_trans, delta_DBD_tminus + p_notrans]))
+                psi_1.append(DBD_tminus_index)
+        
+        #reverse lookup to resolve path
+        psi = zip(reversed(psi_0), reversed(psi_1))
+        path = ''
         
         if delta_IBD > delta_DBD:
-            optimal = psi_1
-        elif delta_DBD > delta_IBD:
-            optimal = psi_2
+            istate = 0
+            for element in psi:
+                path+=str(element[istate])
+                istate = element[istate]
+        elif delta_IBD < delta_DBD:
+            istate = 1
+            for element in psi:
+                path+=str(element[istate])
+                istate = element[istate]
         else:
-            optimal = 'None'
-        
-        viterbi_dict[number] = optimal
+            path = 'None'
+            
+            
+        viterbi_dict[number] = path
     return viterbi_dict
                                  
                              
