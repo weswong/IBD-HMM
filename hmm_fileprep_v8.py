@@ -63,7 +63,8 @@ def data_prep(input_file, bad_samples_file):
     df['diff'] = df.groupby('chrom')['pos'].diff()
     df.fillna('first', inplace = True)
     #df.to_csv('test_df.txt', sep = '\t')
-    #df = df.query('diff > 10 or diff == "first"')
+    # BUG NOTE MUST FIX THE DAISY CHAIN PROBLEM
+    df = df.query('diff > 10 or diff == "first"')
     df.drop('diff', axis = 1, inplace = True)
     
     #calculate the major and minor allele
