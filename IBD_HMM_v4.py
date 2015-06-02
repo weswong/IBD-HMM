@@ -1,4 +1,4 @@
-@profile
+#@profile
 def data_prep(data_df):
     eps = 0.001
     k_rec = 2.0
@@ -10,15 +10,15 @@ def data_prep(data_df):
     
     #concordance condition
     data_df.insert(9,'c_IBD', log((1-eps)*(1-eps) + eps*eps))
-    c_IBD = data_df['minor_prop']**2*(1-eps)**2 + (data_df['major_prop'])**2*eps**2 + 2*data_df['minor_prop']*(data_df['major_prop'])*eps*(1-eps)
-    data_df.insert(10,'c_DBD',log(c_IBD))
+    c_DBD = data_df['minor_prop']**2*(1-eps)**2 + (data_df['major_prop'])**2*eps**2 + 2*data_df['minor_prop']*(data_df['major_prop'])*eps*(1-eps)
+    data_df.insert(10,'c_DBD',log(c_DBD))
     
     diff = data_df.groupby('chrom')['pos'].diff()
     data_df.insert(11, 'diff', diff)
     
     p_trans = k_rec*rec_rate*data_df['diff']
+    p_notrans = 1 - p_trans
     data_df.insert(12, 'p_trans', log(p_trans))
-    p_notrans = 1- data_df['p_trans']
     data_df.insert(13, 'p_notrans', log(p_notrans))
     
     
@@ -37,13 +37,13 @@ def data_prep(data_df):
 #Finds all spots that have some level of missing data, then flips it to serve as an index
 
 # <codecell>
-@profile
+#@profile
 def pairwise_df(good_df):
     fout = open('ibd_hmm.txt', 'w')
     for sample1, sample2 in zip(good_df[0], good_df[1]):
         print sample1, sample2
         missing_bool= np.logical_or(super_missing_df[sample1],super_missing_df[sample2])
-        frac_missing = sum(missing_bool) / float(len(missing_bool))
+        frac_missing = sum(missing_bool) / float(len(data_df))
         missing_sites = missing_bool[missing_bool == True]
         missing_df = DataFrame(missing_sites)
         missing_df['b_IBD'], missing_df['b_DBD'] =frac_missing, frac_missing
@@ -87,7 +87,7 @@ def pairwise_df(good_df):
             fout.write(('\t').join([sample1, sample2, str(number), viterbi_dict[number]]) + '\n')
 
 # <codecell>
-@profile
+#@profile
 def viterbi(df):
     viterbi_dict = {}
     for number in range(1,17):
@@ -100,8 +100,8 @@ def viterbi(df):
                                                            concatenized_df['p_notrans']):
             
             if index in start_indices:
-                delta_IBD = b_IBD * 0.5
-                delta_DBD = b_DBD * 0.5
+                delta_IBD = b_IBD + log(0.5)
+                delta_DBD = b_DBD + log(0.5)
             else:
                 delta_IBD_tminus, delta_DBD_tminus = delta_IBD, delta_DBD
                 

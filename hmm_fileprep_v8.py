@@ -57,13 +57,13 @@ def data_prep(input_file, bad_samples_file):
     #remove bad samples
     df.drop(bad_samples, inplace = True, axis =1)
     #remove non-biallelic alleles
-    print len(df)
     df.drop(df[df.apply(allele_count, axis = 1) != 2].index, inplace = True)
     
     #remove SNPs that are too close to one another
     df['diff'] = df.groupby('chrom')['pos'].diff()
     df.fillna('first', inplace = True)
-    df = df.query('diff > 10 or diff == "first"')
+    #df.to_csv('test_df.txt', sep = '\t')
+    #df = df.query('diff > 10 or diff == "first"')
     df.drop('diff', axis = 1, inplace = True)
     
     #calculate the major and minor allele
