@@ -107,7 +107,7 @@ def good_combos_find(df):
         #jaccard distance = (C_TF + C_FT) / (C_TT + C_TF + C_FT)
         discordance = scipy.spatial.distance.jaccard(minor_df[sample1], minor_df[sample2])
         
-        fout_discordance.write(('\t').join([sample1, sample2, str(len(minor_df), str(discordance)])]) + '\n')
+        fout_discordance.write(('\t').join([sample1, sample2, str(len(minor_df)), str(discordance)])) + '\n')
         if discordance < max_discordance:
             fout.write(('\t').join([sample1, sample2, str(discordance)]) + '\n')
         
