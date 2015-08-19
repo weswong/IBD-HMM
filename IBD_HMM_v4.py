@@ -1,4 +1,4 @@
-@profile
+#@profile
 def data_prep(data_df):
     eps = 0.001
     k_rec = 2.0
@@ -37,7 +37,7 @@ def data_prep(data_df):
 #Finds all spots that have some level of missing data, then flips it to serve as an index
 
 # <codecell>
-@profile
+#@profile
 def pairwise_df(good_df):
     fout = open('ibd_hmm.txt', 'w')
     for sample1, sample2 in zip(good_df[0], good_df[1]):
@@ -83,16 +83,17 @@ def pairwise_df(good_df):
         
         viterbi_dict = viterbi(concatenized_df)
         
-        for number in range(1,17): 
-            fout.write(('\t').join([sample1, sample2, str(number), viterbi_dict[number]]) + '\n')
+        for chromosome in range(1,17): 
+            print len(viterbi_dict[chromosome][1]), len(viterbi_dict[chromosome][0])
+	    fout.write(('\t').join([sample1, sample2, str(chromosome)]) +'\t' + (',').join([str(x) for x in viterbi_dict[chromosome][1]]) + '\t' + viterbi_dict[chromosome][0] + '\n')
 
 # <codecell>
-@profile
+#@profile
 def viterbi(df):
     viterbi_dict = {}
     for number in range(1,17):
         concatenized_df = df[df['chrom'] == number]
-        psi_0 = []
+       	psi_0 = []
         psi_1 = []
         start_indices = concatenized_df.loc[concatenized_df['p_trans'].isnull()].index
         for index, b_IBD, b_DBD, p_trans, p_notrans in zip(concatenized_df.index, concatenized_df['b_IBD'],
@@ -133,7 +134,7 @@ def viterbi(df):
             path = 'None'
             
             
-        viterbi_dict[number] = path
+        viterbi_dict[number] = (path, concatenized_df['pos'])
     return viterbi_dict
                                  
                              
