@@ -47,7 +47,7 @@ def major_prop_find(df_row):
     return major_prop
 
 #@profile
-def data_prep(input_file, bad_samples_file):
+def data_prep(input_file, bad_samples_file, freq_file=None):
     min_snpD = 10
     tri_allele= 0
     
@@ -68,12 +68,28 @@ def data_prep(input_file, bad_samples_file):
     df = df.query('diff > 10 or diff == "first"')
     df.drop('diff', axis = 1, inplace = True)
     
-    #calculate the major and minor allele
-    major = df.apply(major_find, axis =1 )
-    minor = df.apply(minor_find, axis =1 )
-    major_prop = df.apply(major_prop_find, axis =1 )
-    minor_prop = df.apply(minor_prop_find, axis = 1)
-    
+    if not freq_file:
+        #calculate the major and minor allele
+        major = df.apply(major_find, axis =1 )
+        minor = df.apply(minor_find, axis =1 )
+        major_prop = df.apply(major_prop_find, axis =1 )
+        minor_prop = df.apply(minor_prop_find, axis = 1)
+    else:
+        import freq_parse as freq
+        import json
+        s=freq.Simulation(freq_file)
+        s.run()
+        snp_dict = json.load(open('snp_dict.json'))
+        df['keys'] = df['chrom'].map(str) +':'+ df['pos'].map(str)        
+        major = df['keys'].apply(lambda x : snp_dict[x]['major'])
+        major_prop = df['keys'].apply(lambda x : snp_dict[x]['major_freq'])
+        minor = df['keys'].apply(lambda x : snp_dict[x]['minor'])
+        minor_prop = df['keys'].apply(lambda x : snp_dict[x]['minor_freq'])
+        
+        df.drop('keys', inplace= True, axis = 1)
+               
+        
+        
     #inserting this stuff into dataframe for future use
     df.insert(3, 'minor_prop', minor_prop)
     df.insert(3, 'minor', minor)
@@ -120,5 +136,9 @@ def good_combos_find(df):
 if __name__ == "__main__":
     input_file = sys.argv[1]
     bad_samples_file = sys.argv[2]
-    df = data_prep(input_file, bad_samples_file)
+    if len(sys.argv) == 4:
+        freq_file = sys.argv[3]
+    else:
+        freq_file = None
+    df = data_prep(input_file, bad_samples_file, freq_file)
     good_combos_find(df)
