@@ -56,20 +56,24 @@ def data_prep(input_file, bad_samples_file, freq_dict=None):
     
     output_file = ('.').join(input_file.split('.')[0:-2]) + '_cleaned.txt'
     
+    
+    #relaxing conditions because we only have 3000 SNPs to begin with
     bad_samples = [sample.strip() for sample in open(bad_samples_file)]                                              
     df = DataFrame(read_csv(input_file, sep = '\t'))
     #remove bad samples
     df.drop(bad_samples, inplace = True, axis =1)
     #remove non-biallelic alleles
-    df.drop(df[df.apply(allele_count, axis = 1) != 2].index, inplace = True)
+    #df.drop(df[df.apply(allele_count, axis = 1) != 2].index, inplace = True)
     
-    #remove SNPs that are too close to one another
+    
+    #relaxing conditions because we only have 3000 SNPs to begin with
+    '''#remove SNPs that are too close to one another
     df['diff'] = df.groupby('chrom')['pos'].diff()
     df.fillna('first', inplace = True)
     #df.to_csv('test_df.txt', sep = '\t')
     # BUG NOTE MUST FIX THE DAISY CHAIN PROBLEM
     df = df.query('diff > 10 or diff == "first"')
-    df.drop('diff', axis = 1, inplace = True)
+    df.drop('diff', axis = 1, inplace = True)'''
     
     if not freq_dict:
         #calculate the major and minor allele
@@ -101,7 +105,7 @@ def data_prep(input_file, bad_samples_file, freq_dict=None):
 #@profile
 def good_combos_find(df):
     fout = open(base +'_good_combos.txt', 'w')
-    max_discordance = 0.85
+    max_discordance = 1.0
     fout_discordance = open(base + '_discordance.txt', 'w')
     #minor_df = DataFrame()
     

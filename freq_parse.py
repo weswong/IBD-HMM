@@ -6,7 +6,7 @@
 from pandas import DataFrame, read_csv
 import operator
 import json
-
+import sys
 # <codecell>
 
 def parse_file(file):
@@ -78,7 +78,8 @@ class Simulation:
 # <codecell>
 
 if __name__ == '__main__':
-    s = Simulation('Master_senegal_samples.maf01.mm80.frq')
+    freq_file = sys.argv[1]
+    s = Simulation(freq_file)
     s.run()
 
 # <codecell>

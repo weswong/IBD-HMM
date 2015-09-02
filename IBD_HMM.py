@@ -39,7 +39,7 @@ def data_prep(data_df):
 # <codecell>
 #@profile
 def pairwise_df(good_df):
-    fout = open('ibd_hmm.txt', 'w')
+    fout = open(base+'_ibdhmm_results.txt', 'w')
     for sample1, sample2 in zip(good_df[0], good_df[1]):
         print sample1, sample2
         missing_bool= np.logical_or(super_missing_df[sample1],super_missing_df[sample2])
@@ -150,7 +150,8 @@ if __name__ == "__main__":
     
     good_combos_file = sys.argv[1]
     cleaned_file = sys.argv[2]
-    
+
+    base = good_combos_file.split('_')[0]
     good_df = DataFrame(read_csv(good_combos_file, sep = '\t', header = None))
     data_df = DataFrame(read_csv(cleaned_file, sep = '\t'))
     
