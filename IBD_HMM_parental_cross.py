@@ -22,15 +22,15 @@ def data_prep(data_df):
     data_df.insert(13, 'p_notrans', log(p_notrans))
     
     
-    super_minor_df = DataFrame()
+    super_ref_df = DataFrame()
     for sample in data_df.keys()[7:]:
-        super_minor_df[sample] = data_df[sample] == data_df['minor']
+        super_ref_df[sample] = data_df[sample] == data_df['ref_allele']
         
     super_missing_df = DataFrame()
     for sample in data_df.keys()[14:]:
         super_missing_df[sample] = data_df[sample] == '.'
     
-    return data_df, super_missing_df, super_minor_df
+    return data_df, super_missing_df, super_ref_df
 #logical operator
 #True = missing
 #False = not missing
@@ -49,12 +49,13 @@ def pairwise_df(good_df):
         missing_df['b_IBD'], missing_df['b_DBD'] =frac_missing, frac_missing
         missing_df['reason'] = 'missing'
             
-        cleaned_df = data_df.drop(missing_df.index)
-        #print np.logical_xor(cleaned_df[sample1],cleaned_df[sample2])
-        #Major Major stripped out because pedigreee is known and this no longer makes sense
+        ref_df = super_ref_df.drop(missing_df.index)
+
+
+        #Major Major stripped out because pedigree is known and this no longer makes sense
         
         # discordance
-        discord_bool = np.logical_xor(cleaned_df[sample1],cleaned_df[sample2])
+        discord_bool =ref_df[sample1] != ref_df[sample2]
         discord_sites = discord_bool[discord_bool == True]
         discord_df = DataFrame(discord_sites)
         discord_df['b_IBD'] = data_df['d_IBD'].loc[discord_df.index]
@@ -62,12 +63,13 @@ def pairwise_df(good_df):
         discord_df['reason'] = 'discordance'
         
         #concordance
-        concord_bool = np.logical_and(cleaned_df[sample1], cleaned_df[sample2])
+        concord_bool = ref_df[sample1]== ref_df[sample2]
         concord_sites = concord_bool[concord_bool == True]
         concord_df = DataFrame(concord_sites)
         concord_df['b_IBD'] = data_df['c_IBD'].loc[concord_df.index]
         concord_df['b_DBD'] = data_df['c_DBD'].loc[concord_df.index]
         concord_df['reason'] = 'concordance'
+        
         
         concatenized_df = (pd.concat([missing_df, discord_df, concord_df],axis=0, join = 'outer')).sort()
         
@@ -75,11 +77,12 @@ def pairwise_df(good_df):
         concatenized_df.insert(1, 'pos', data_df['pos'])
         concatenized_df['p_trans'] = data_df['p_trans']
         concatenized_df['p_notrans'] = data_df['p_notrans']
+
         
-        viterbi_dict = viterbi(concatenized_df)
-        
+        viterbi_dict = viterbi(concatenized_df)        
+
         for chromosome in range(1,17): 
-            print len(viterbi_dict[chromosome][1]), len(viterbi_dict[chromosome][0])
+            #print len(viterbi_dict[chromosome][1]), len(viterbi_dict[chromosome][0])
 	    fout.write(('\t').join([sample1, sample2, str(chromosome)]) +'\t' + (',').join([str(x) for x in viterbi_dict[chromosome][1]]) + '\t' + viterbi_dict[chromosome][0] + '\n')
 
 # <codecell>
@@ -95,6 +98,7 @@ def viterbi(df):
                                                            concatenized_df['b_DBD'], concatenized_df['p_trans'],
                                                            concatenized_df['p_notrans']):
             
+
             if index in start_indices:
                 delta_IBD = b_IBD + log(0.5)
                 delta_DBD = b_DBD + log(0.5)
@@ -152,7 +156,7 @@ if __name__ == "__main__":
     good_df = DataFrame(read_csv(good_combos_file, sep = '\t', header = None))
     data_df = DataFrame(read_csv(cleaned_file, sep = '\t'))
     
-    data_df, super_missing_df, super_minor_df = data_prep(data_df)
+    data_df, super_missing_df, super_ref_df = data_prep(data_df)
     
     pairwise_df(good_df)
 
