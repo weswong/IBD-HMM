@@ -1,5 +1,6 @@
 # IBD-HMM
 HMM that uses the viterbi algorithm to infer relatedness between genome
+Original version written by Steve Schaffner
 Questions/Concerns should be directed to wesleywong@fas.harvard.edu
 
 
