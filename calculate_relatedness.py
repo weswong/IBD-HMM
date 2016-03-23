@@ -2,6 +2,7 @@
 import sys
 import matplotlib.pyplot as plt
 import numpy as np
+import json
 
 chr_lengths = {1:643292,
                2:947102,
@@ -31,6 +32,7 @@ class chromosome:
         self.dbd= []
 
 def prepare_data(file):
+    base_file = ('_').join(file.split('_')[0:-2]) 
     fin = open(file)
     data = [x.strip().split() for x in fin.readlines()]
     
@@ -57,11 +59,13 @@ def prepare_data(file):
                 states_dict[chr] = [chr_positions, states]
             else:
                 print 'error'
-                
-
+    
+    fout= open(base_file + '_flip_meta.txt', 'w')
+    fout.write('comparison\tchromosome\tflips\n')
     for comparison in samples_dict:
         states_dict = samples_dict[comparison]
         for key in states_dict:
+            flip_count = 0
             flip_points = []
             chr_positions = states_dict[key][0]
             states = states_dict[key][1]
@@ -81,11 +85,14 @@ def prepare_data(file):
                     continue
                 
                 else:
+                    flip_count += 1
                     if state == '0':
                         flip_points.append(('IBD', int(chr_positions[i])))
                     else:
                         flip_points.append(('DBD', int(chr_positions[i])))
+            fout.write(('\t').join([comparison,str(key), str(flip_count)]) + '\n')
             states_dict[key].append(flip_points)
+
     
     graph_samples_dict = {}
     graph_dict= {}
@@ -114,14 +121,18 @@ def prepare_data(file):
     return graph_samples_dict
 
 def calculate_coef_relatedness(file):
+    base_name = out_file = ('_').join(file.split('_')[0:-2]) 
     out_file = ('_').join(file.split('_')[0:-2]) +'_relatedness.txt'
     fout = open(out_file, 'w')
     relatedness_dict = prepare_data(file)
+    with open(base_name + '_relatedness_dict.json', 'w') as fp:
+        json.dump(relatedness_dict, fp)
     for comparison in relatedness_dict:
         coef_relatedness = 0
+	normalized_genome_size = float(sum([chr_lengths[key] for key in relatedness_dict[comparison]]))
         for key in relatedness_dict[comparison]:
             for segment in relatedness_dict[comparison][key]['ibd']:
-                coef_relatedness += segment[1] /genome_size
+                coef_relatedness += segment[1] /normalized_genome_size
         fout.write(comparison + '\t' + str(coef_relatedness) + '\n')
     fout.close()
 
