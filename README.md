@@ -27,7 +27,8 @@ Input Scripts:
 * graph_ibd_results.py -- script that graphs the IBD segments from the HMM output
 * hmm_fileprep.py -- script that creates the HMM input files from output of scriptVCF_IBD.py. Input file should only accepts a list of monogenomic infections.
 * hmm_fileprep_coi.py -- identical to hmm_fileprep.py but should only contain the two randomly constructed pseudohaplotypes for the polygenomic infection
-* scriptVCF_IBD.py simple script that takes the output from vcf-to-tab and converts it into a format that the HMM can run. Should be run as zcat file.vcf.gz | vcf-to-tab | thisscript.py output_file name
+* scriptVCF_IBD.py -- simple script that takes the output from vcf-to-tab and converts it into a format that the HMM can run. Should be run as zcat file.vcf.gz | vcf-to-tab | thisscript.py output_file name
+* scriptVCF_badsamples.py -- takes the output of the vcftools --missing-indv function to identify bad samples within the dataset
 
 Standard Pipeline:
 
