@@ -1,6 +1,5 @@
 # IBD-HMM
 HMM that uses the viterbi algorithm to infer relatedness between genome
-Original version written by Steve Schaffner
 Questions/Concerns should be directed to wesleywong@fas.harvard.edu
 
 
@@ -43,14 +42,38 @@ vcftools --gzvcf {.vcf.gz} --indiv-missing --out {badsamples_file}
 
 python scriptVCF_badsamples.py {badsamples_file}
 
-3) Run the fileprep program for the IBD HMM
+3) Run the fileprep program for the IBD HMM to prepare the samples
 python hmm_fileprep sequence_file bad_samples
-* Two outputs: a good combos file and a discordance file
-For the discordance file, column1 is sample1, column2 is sample 2, column 3 is the number of sites examined for this particular pair, column 4 is the discordance
+This script has 3 outputs: a good combos file, a discordance file, and a the input for the HMM (referred to as a cleaned_file)
 
-*Note: hmm_fileprep_coi.py sequence_file bad_samples {optional freq file json}
-hmm_fileprep_coi file is the same as hmm_fileprep except it contains an optional parameter to pass
-in the frequencies as a json file. These frequencies are created using the freq_parse.py file
+Discordance file format:
+Tab-delimited file where 
+column1 = sample1
+column2 = sample 2
+column 3 = the number of sites (this version only examines sites where the minor allele is present) examined for this particular pair
+column 4 - the discordance
 
-4)Run the IBD HMM
+Good combos file:
+Tab-delimited file where:
+column1 = sample1
+column 2 = sample2
+
+HMM input file (cleaned_file):
+Cleaned up data by removing sites that are too close from each other and calculates  major and minor allele frequencies.py
+
+To specify allele frequencies, use the hmm_fileprep_coi.py script:
+hmm_fileprep_coi file is the same as hmm_fileprep except it contains an optional parameter to pass in the frequencies as a json file. 
+hmm_fileprep_coi.py sequence_file bad_samples {optional freq file json}
+
+These frequencies are created using the freq_parse.py script (default titled snp_dict.json) and is a python dictionary where:
+* {Chromosome:Position : {'major': identity of the major allele,
+                          'major_freq': frequency of the minor allele,
+                          'minor': identity of the minor allele,
+                          'minor_freq': frequency of the minor allele}
+Chromosome and position are provided as integers (example: If chromosome 1, position 2000 = 2000, Chromosome:position should be provided as "1:2000"
+
+4)Run the IBD HMM 
 python IBD_HMM.py good_combos_file cleaned_file
+
+4) Run Graphing scripts (graph_ibd_pedigree.py, graph_ibd_results.py)
+Input is the output of the hmm file.
