@@ -3,8 +3,8 @@ HMM that uses the viterbi algorithm to infer relatedness between genome
 Original version written by Steve Schaffner
 Questions/Concerns should be directed to wesleywong@fas.harvard.edu
 
-This version of the IBD-HMM was used in the paper titled "Genetic relatedness analysis reveals the cotransmission of genetically related Plasmodium falciparum parasites in Thies, Senegal" but is no longer being actively maintained. For the most recent version, please refer to: https://github.com/glipsnort/hmmIBD
 
+# This version of the IBD-HMM was used in the paper titled "Genetic relatedness analysis reveals the cotransmission of genetically related Plasmodium falciparum parasites in Thies, Senegal" but is no longer being actively maintained. For the most recent version, please refer to: https://github.com/glipsnort/hmmIBD
 
 
 Requires:
