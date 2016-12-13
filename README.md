@@ -17,7 +17,7 @@ scipy
 Optional:
 vcftools 0.1.12b
 
-Standard Pipeline
+Standard Pipeline:\n
 Assuming you start off with a VCF file that is properly filtered/contains the information you need:
 
 1) convert VCF file to a tab-delimited file, which is piped into scriptVCF_IBD.py
