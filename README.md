@@ -17,7 +17,20 @@ scipy
 Optional:
 vcftools 0.1.12b
 
-Standard Pipeline:\n
+Input Scripts:
+
+* IBD_HMM.py -- standard IBD HMM, uses population allele frequencies to infer IBD
+* IBD_HMM_pedigree_known.py -- non-standard IBD HMM. Used identically to IBD_HMM.py but requires that the VCF file be prefiltered to contain only lab-cross offspring with a known parent. Furthermore, VCF file must be prefiltered to contain positions that are variant amongst the two parental strains.
+* calculate_relatedness.py -- calculates the relatedness of parasites using the final HMM output
+* freq_parse.py -- script that calculates the allele frequencies from the input file to the HMM.
+* graph_ibd_pedigree.py -- script that graphs the IBD segments from the HMM output and maps the IBD segments of that particular polygenomic infection two monogenomic samples
+* graph_ibd_results.py -- script that graphs the IBD segments from the HMM output
+* hmm_fileprep.py -- script that creates the HMM input files from output of scriptVCF_IBD.py. Input file should only accepts a list of monogenomic infections.
+* hmm_fileprep_coi.py -- identical to hmm_fileprep.py but should only contain the two randomly constructed pseudohaplotypes for the polygenomic infection
+* scriptVCF_IBD.py simple script that takes the output from vcf-to-tab and converts it into a format that the HMM can run. Should be run as zcat file.vcf.gz | vcf-to-tab | thisscript.py output_file name
+
+Standard Pipeline:
+
 Assuming you start off with a VCF file that is properly filtered/contains the information you need:
 
 1) convert VCF file to a tab-delimited file, which is piped into scriptVCF_IBD.py
